@@ -76,6 +76,31 @@ Die Hybrid-App arbeitet vollständig ohne Server-Backend. Das Frontend kommunizi
 * **Icon-Bibliothek:** `lucide-react`
 * **Kamera-Bibliothek:** `html5-qrcode`
 
+### 🔄 System-Ablaufdiagramm
+
+```mermaid
+graph TD
+    A[Nutzer scannt Barcode] --> B{Offline-Datenbank / Cache prüfen}
+    B -->|Treffer gefunden| C[Lade Daten offline / aus Cache]
+    B -->|Kein Treffer| D{Ist Online?}
+    D -->|Ja| E[Abfrage OpenFoodFacts API v2]
+    D -->|Nein| F[Offline / 404 EAN-Präfix Live-Diagnose]
+    E -->|Erfolgreich| G[Speichere Ergebnis im FIFO-Cache]
+    E -->|404 Nicht Gefunden| F
+    F -->|Präfix-Treffer Müller/Nestlé/Anthro| H{Aktive Boykott-Filter prüfen}
+    F -->|Kein Treffer / Unauffällig| L[Unbekannt / Unauffälliges Präfix]
+    C --> H
+    G --> H
+    H -->|Müller Treffer & aktiv| I[ALARM: Müller-Gruppe]
+    H -->|Nestlé Treffer & aktiv| J[ALARM: Nestlé-Konzern]
+    H -->|Anthro Treffer & aktiv| K[ALARM: Anthroposophie]
+    H -->|Sauber oder Filter inaktiv| L[Unbedenklich / Boykott-Frei]
+    I --> M[Blockiere Demeter/Anthro-Alternativen]
+    J --> M
+    K --> M
+    M --> N[Präsentiere ethische, konzernfreie Alternativen]
+```
+
 ---
 
 ## 🚀 Installation & Lokaler Start (Android)
